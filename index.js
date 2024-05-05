@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
@@ -87,6 +87,7 @@ async function run() {
     // WRITE YOUR CODE HERE
     // ==============================================================
 
+    //! donation data create api
     app.post("/api/v1/donations/create", async (req, res) => {
       const data = req.body;
       try {
@@ -103,6 +104,8 @@ async function run() {
         });
       }
     });
+
+    //! donation data fetching api
     app.get("/api/v1/donations", async (req, res) => {
       try {
         const result = await donationCollection.find().toArray();
@@ -119,6 +122,27 @@ async function run() {
         });
       }
     });
+
+    //! single donation data api
+    app.get("/api/v1/donations/:id", async (req, res) => {
+      const { id } = req.params;
+      try {
+        const result = await donationCollection.findOne({ _id: new ObjectId(id) });
+        console.log(result);
+        res.status(201).json({
+          success: true,
+          message: "Donation data fetched successfully",
+          data: result,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          message: "An error occurred while fetching donation data",
+        });
+      }
+    });
+
+    //! edit donation data api (including delete data and update received amount)
 
     // Start the server
     app.listen(port, () => {
