@@ -109,7 +109,6 @@ async function run() {
     app.get("/api/v1/donations", async (req, res) => {
       try {
         const result = await donationCollection.find().toArray();
-        console.log(result);
         res.status(201).json({
           success: true,
           message: "Donation data fetched successfully",
@@ -127,8 +126,9 @@ async function run() {
     app.get("/api/v1/donations/:id", async (req, res) => {
       const { id } = req.params;
       try {
-        const result = await donationCollection.findOne({ _id: new ObjectId(id) });
-        console.log(result);
+        const result = await donationCollection.findOne({
+          _id: new ObjectId(id),
+        });
         res.status(201).json({
           success: true,
           message: "Donation data fetched successfully",
@@ -143,6 +143,51 @@ async function run() {
     });
 
     //! edit donation data api (including delete data and update received amount)
+
+    //? delete donation data api
+    app.delete("/api/v1/donations/:id", async (req, res) => {
+      const { id } = req.params;
+      console.log(id);
+      try {
+        const result = await donationCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+        res.status(201).json({
+          success: true,
+          message: "Donation data deleted successfully",
+          data: result,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          message: "An error occurred while deleting donation data",
+        });
+      }
+    });
+
+    //! post update api
+    app.patch("/api/v1/donations/:id", async (req, res) => {
+      const { id } = req.params;
+      const donationData = req.body;
+      try {
+        const result = await donationCollection.findOneAndUpdate(
+          { _id: new ObjectId(id) },
+          { $set: donationData },
+          { new: true }
+        );
+        
+        res.status(201).json({
+          success: true,
+          message: "Donation data fetched successfully",
+          data: result,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          message: "An error occurred while fetching donation data",
+        });
+      }
+    });
 
     // Start the server
     app.listen(port, () => {
